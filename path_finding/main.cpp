@@ -72,18 +72,14 @@ int main() {
         depth.readFrame(&dep);
         openni::RGB888Pixel *pColor = (openni::RGB888Pixel *) pFrame.getData();
         openni::DepthPixel* pDepth = (openni::DepthPixel *) dep.getData();
-        
+
         bw = cv::Mat(cv::Size(320, 240), CV_16UC1, (void*) pDepth);
-        
+
         for (int i = 0; i < frame.rows; i++) {
             for (int j = 0; j < frame.cols; j++) {
                 openni::RGB888Pixel pix = pColor[frame.cols * i + j];
-                
-                
-                
-                 frame.at<cv::Vec3b>(i, j) = cv::Vec3b(pix.r, pix.g, pix.b);
 
-                
+                frame.at<cv::Vec3b>(i, j) = cv::Vec3b(pix.r, pix.g, pix.b);
             }
         }
 
