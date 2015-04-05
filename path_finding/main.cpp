@@ -71,11 +71,12 @@ int main() {
     cv::namedWindow("OpenCV", CV_WINDOW_KEEPRATIO);
     cv::namedWindow("contour", CV_WINDOW_KEEPRATIO);
     cv::namedWindow("birds-eye", CV_WINDOW_KEEPRATIO);
-    
+    cv::namedWindow("perspective", CV_WINDOW_KEEPRATIO);
+
 
     cv::Mat frame = cv::Mat(cv::Size(320, 240), CV_8UC3);
     int frame_depth = 1750;
-    
+
 
 
     cv::Mat bw;
@@ -124,15 +125,15 @@ int main() {
         cv::Mat birds_eye = cv::Mat::zeros(cv::Size(320, frame_depth), CV_8UC3);
 
         /*draw borders / contours*/
-//        Scalar color(255, 255, 255);
+        //        Scalar color(255, 255, 255);
         for (unsigned int i = 0; i < contours.size(); i++) {
             vector<Point> next_contour = contours.at(i);
             if (next_contour.size() > 100) {
                 Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
                 drawContours(contour, contours, i, color, 1, 8);
-                
+
                 /*draw onto birds-eye view*/
-                for(unsigned int j = 0; j < next_contour.size(); j++){
+                for (unsigned int j = 0; j < next_contour.size(); j++) {
                     Point next_point = next_contour.at(j);
                     int x = next_point.x;
                     int y = next_point.y;
@@ -147,8 +148,8 @@ int main() {
         cv::imshow("OpenCV", frame);
         cv::imshow("contour", contour);
         cv::imshow("birds-eye", birds_eye);
-        
-//        sleep(1);
+
+        //        sleep(1);
 
         c = cv::waitKey(10);
         if (c == 27)

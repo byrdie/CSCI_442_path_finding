@@ -12,6 +12,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>findpath.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -46,9 +47,15 @@
             <linkerLibFileItem>OpenNI2/Bin/x64-Release/libMWClosestPoint.so</linkerLibFileItem>
             <linkerLibFileItem>OpenNI2/Bin/x64-Release/libOpenNI2.jni.so</linkerLibFileItem>
             <linkerLibFileItem>OpenNI2/Bin/x64-Release/libOpenNI2.so</linkerLibFileItem>
+            <linkerLibFileItem>OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libDummyDevice.so</linkerLibFileItem>
+            <linkerLibFileItem>OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libOniFile.so</linkerLibFileItem>
+            <linkerLibFileItem>OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libPS1080.so</linkerLibFileItem>
+            <linkerLibFileItem>OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libPSLink.so</linkerLibFileItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>
+      <item path="findpath.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
@@ -72,6 +79,8 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="findpath.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
