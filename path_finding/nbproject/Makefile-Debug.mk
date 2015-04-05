@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/findpath.o \
 	${OBJECTDIR}/main.o
 
 
@@ -52,7 +53,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=`pkg-config --libs opencv` OpenNI2/Bin/x64-Release/libMWClosestPoint.so OpenNI2/Bin/x64-Release/libOpenNI2.jni.so OpenNI2/Bin/x64-Release/libOpenNI2.so  
+LDLIBSOPTIONS=`pkg-config --libs opencv` OpenNI2/Bin/x64-Release/libMWClosestPoint.so OpenNI2/Bin/x64-Release/libOpenNI2.jni.so OpenNI2/Bin/x64-Release/libOpenNI2.so OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libDummyDevice.so OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libOniFile.so OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libPS1080.so OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libPSLink.so  
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -64,9 +65,22 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/path_finding: OpenNI2/Bin/x64-Release
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/path_finding: OpenNI2/Bin/x64-Release/libOpenNI2.so
 
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/path_finding: OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libDummyDevice.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/path_finding: OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libOniFile.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/path_finding: OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libPS1080.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/path_finding: OpenNI2/Bin/x64-Release/OpenNI2/Drivers/libPSLink.so
+
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/path_finding: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/path_finding ${OBJECTFILES} ${LDLIBSOPTIONS}
+
+${OBJECTDIR}/findpath.o: findpath.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -IOpenNI2/Include `pkg-config --cflags opencv`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/findpath.o findpath.cpp
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}

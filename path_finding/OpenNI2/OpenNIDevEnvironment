@@ -1,2 +1,2 @@
-export OPENNI2_INCLUDE=/home/byrdie/NetBeansProjects/CSCI_442_path_finding/path_finding/OpenNI2/Include
-export OPENNI2_REDIST=/home/byrdie/NetBeansProjects/CSCI_442_path_finding/path_finding/OpenNI2/Redist
+export OPENNI2_INCLUDE=/home/zach/NetBeansProjects/CSCI_442_path_finding/path_finding/OpenNI2/Include
+export OPENNI2_REDIST=/home/zach/NetBeansProjects/CSCI_442_path_finding/path_finding/OpenNI2/Redist
