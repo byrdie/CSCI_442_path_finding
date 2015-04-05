@@ -61,7 +61,6 @@ int main() {
     cv::namedWindow("OpenCV", CV_WINDOW_KEEPRATIO);
     cv::namedWindow("contour", CV_WINDOW_KEEPRATIO);
     cv::namedWindow("birds-eye", CV_WINDOW_KEEPRATIO);
-    cv::namedWindow("perspective", CV_WINDOW_KEEPRATIO);
 
 
     cv::Mat frame = cv::Mat(cv::Size(320, 240), CV_8UC3);
@@ -98,7 +97,7 @@ int main() {
         cv::Mat weightedFrame = cv::Mat(frame.size(), CV_32FC3);
         cv::Mat run_ave = cv::Mat::zeros(frame.size(), CV_8UC3);
         
-        cv::GaussianBlur(frame, temp, Size(11, 11), 0, 0);
+        cv::GaussianBlur(frame, temp, Size(13, 13), 0, 0);
         
         
         cv::accumulateWeighted(temp, weightedFrame, 0.01);
@@ -136,13 +135,32 @@ int main() {
             }
 
         }
+        
+        /*compute shortest path through obstacles*/
+        Point * traject = search(birds_eye);
+        
+        /*draw the trajectory*/
+//        Mat imgLines = Mat::zeros(img.size(), CV_8UC3); // allocate new memory
+        int index = 1;
+        Point last_point = traject[0];
+        while(true){
+            Point this_point = traject[index];
+            
+            if(this_point.x == 0 && this_point.y == 0){
+                break;
+            }
+            
+            line(birds_eye, this_point, last_point, Scalar(0, 0, 255), 2);    
+            last_point = this_point;
+            index++;
+        }
 
         cv::imshow("depth", run_ave);
         cv::imshow("OpenCV", frame);
         cv::imshow("contour", contour);
         cv::imshow("birds-eye", birds_eye);
 
-        //        sleep(1);
+//                sleep(4);
 
         c = cv::waitKey(10);
         if (c == 27)

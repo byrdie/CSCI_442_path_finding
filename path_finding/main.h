@@ -17,6 +17,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 //#include "NiTE.h"
 
+#include "findpath.h"
+
 
 using namespace cv;
 
