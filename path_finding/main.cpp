@@ -9,8 +9,12 @@
 #include <opencv2/imgproc/imgproc.hpp>
 //#include "NiTE.h"
 
+
+using namespace cv;
+
 int main() {
 
+    RNG rng(12345);
     int c = 100;
     openni::Status rc = openni::STATUS_OK;
     openni::Device device;
@@ -63,9 +67,13 @@ int main() {
         openni::OpenNI::shutdown();
         return 2;
     }
-    cv::namedWindow("OpenCV", 1);
+    cv::namedWindow("depth", CV_WINDOW_KEEPRATIO);
+    cv::namedWindow("OpenCV", CV_WINDOW_KEEPRATIO);
+    cv::namedWindow("contour", CV_WINDOW_KEEPRATIO);
+
     cv::Mat frame = cv::Mat(cv::Size(320, 240), CV_8UC3);
-    //cv::Mat bw = cv::Mat(cv::Size(320,240), CV_16UC1);
+
+
     cv::Mat bw;
     while (1) {
         color.readFrame(&pFrame);
@@ -78,13 +86,53 @@ int main() {
         for (int i = 0; i < frame.rows; i++) {
             for (int j = 0; j < frame.cols; j++) {
                 openni::RGB888Pixel pix = pColor[frame.cols * i + j];
+                int d = pDepth[frame.cols * i + j];
 
-                frame.at<cv::Vec3b>(i, j) = cv::Vec3b(pix.r, pix.g, pix.b);
+                if (d < 1750 && d > 20) {
+                    frame.at<cv::Vec3b>(i, j) = cv::Vec3b(pix.r, pix.g, pix.b);
+                } else {
+                    frame.at<cv::Vec3b>(i, j) = cv::Vec3b(0, 0, 0);
+                }
+
+
             }
+        }
+
+        /*blur depth data*/
+        cv::Mat temp = cv::Mat::zeros(frame.size(), CV_8UC1);
+        cv::cvtColor(frame, temp, CV_BGR2GRAY);
+        //        cv::Mat temp2 = cv::Mat::zeros(frame.size(), CV_8UC1);
+        cv::GaussianBlur(temp, temp, Size(11, 11), 0, 0);
+        //        cv::convertScaleAbs(temp, temp2, 1, 0);
+        //        temp.convertTo(temp2, CV_8UC1, 255.0/32768.0);
+
+        Mat canny_output = cv::Mat::zeros(frame.size(), CV_8UC1);
+        Mat contour = cv::Mat::zeros(frame.size(), CV_8UC3);
+        vector<vector<Point> > contours;
+        //        vector<Vec4i> hierarchy;
+
+        /// Detect edges using canny
+        unsigned int thresh = 20;
+        Canny(temp, canny_output, thresh, thresh * 2, 3);
+        /// Find contours
+        findContours(canny_output, contours, CV_RETR_TREE, CV_CHAIN_APPROX_NONE);
+
+
+        /*draw borders / contours*/
+//        Scalar color(255, 255, 255);
+        for (unsigned int i = 0; i < contours.size(); i++) {
+            if (contours.at(i).size() > 100) {
+                Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+                drawContours(contour, contours, i, color, 1, 8);
+            }
+
         }
 
         cv::imshow("depth", bw);
         cv::imshow("OpenCV", frame);
+        cv::imshow("contour", contour);
+        
+//        sleep(1);
 
         c = cv::waitKey(10);
         if (c == 27)
