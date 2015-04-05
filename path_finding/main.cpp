@@ -92,7 +92,7 @@ int main() {
                 openni::RGB888Pixel pix = pColor[frame.cols * i + j];
                 int d = pDepth[frame.cols * i + j];
 
-                if (d < frame_depth && d > 20) {
+                if (d < frame_depth && d > 5) {
                     frame.at<cv::Vec3b>(i, j) = cv::Vec3b(pix.r, pix.g, pix.b);
                 } else {
                     frame.at<cv::Vec3b>(i, j) = cv::Vec3b(0, 0, 0);
@@ -103,31 +103,34 @@ int main() {
         }
 
         /*blur depth data*/
-        cv::Mat temp = cv::Mat::zeros(frame.size(), CV_8UC1);
-        cv::cvtColor(frame, temp, CV_BGR2GRAY);
-        //        cv::Mat temp2 = cv::Mat::zeros(frame.size(), CV_8UC1);
-        cv::GaussianBlur(temp, temp, Size(11, 11), 0, 0);
-        //        cv::convertScaleAbs(temp, temp2, 1, 0);
-        //        temp.convertTo(temp2, CV_8UC1, 255.0/32768.0);
-
+        cv::Mat temp = cv::Mat::zeros(frame.size(), CV_8UC3);
+        cv::Mat weightedFrame = cv::Mat(frame.size(), CV_32FC3);
+        cv::Mat run_ave = cv::Mat::zeros(frame.size(), CV_8UC3);
+        
+        cv::GaussianBlur(frame, temp, Size(11, 11), 0, 0);
+        
+        
+        cv::accumulateWeighted(temp, weightedFrame, 0.01);
+        cv::convertScaleAbs(weightedFrame, run_ave, 1.0, 0.0);
+        
+        /*allocate memory for canny*/
         Mat canny_output = cv::Mat::zeros(frame.size(), CV_8UC1);
         Mat contour = cv::Mat::zeros(frame.size(), CV_8UC3);
         vector<vector<Point> > contours;
-        //        vector<Vec4i> hierarchy;
 
         /// Detect edges using canny
         unsigned int thresh = 20;
-        Canny(temp, canny_output, thresh, thresh * 2, 3);
+        Canny(run_ave, canny_output, thresh, thresh * 2, 3);
         /// Find contours
         findContours(canny_output, contours, CV_RETR_TREE, CV_CHAIN_APPROX_NONE);
 
-        cv::Mat birds_eye = cv::Mat::zeros(cv::Size(320, frame_depth), CV_8UC3);
+        cv::Mat birds_eye = cv::Mat::zeros(cv::Size(frame_depth, 320), CV_8UC3);
 
         /*draw borders / contours*/
 //        Scalar color(255, 255, 255);
         for (unsigned int i = 0; i < contours.size(); i++) {
             vector<Point> next_contour = contours.at(i);
-            if (next_contour.size() > 100) {
+            if (next_contour.size() > 200) {
                 Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
                 drawContours(contour, contours, i, color, 1, 8);
                 
@@ -143,7 +146,7 @@ int main() {
 
         }
 
-        cv::imshow("depth", bw);
+        cv::imshow("depth", run_ave);
         cv::imshow("OpenCV", frame);
         cv::imshow("contour", contour);
         cv::imshow("birds-eye", birds_eye);
