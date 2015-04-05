@@ -57,9 +57,9 @@ int main() {
         openni::OpenNI::shutdown();
         return 2;
     }
-    cv::namedWindow("depth", CV_WINDOW_KEEPRATIO);
-    cv::namedWindow("OpenCV", CV_WINDOW_KEEPRATIO);
-    cv::namedWindow("contour", CV_WINDOW_KEEPRATIO);
+//    cv::namedWindow("depth", CV_WINDOW_KEEPRATIO);
+//    cv::namedWindow("OpenCV", CV_WINDOW_KEEPRATIO);
+//    cv::namedWindow("contour", CV_WINDOW_KEEPRATIO);
     cv::namedWindow("birds-eye", CV_WINDOW_KEEPRATIO);
 
 
@@ -82,7 +82,7 @@ int main() {
                 openni::RGB888Pixel pix = pColor[frame.cols * i + j];
                 int d = pDepth[frame.cols * i + j];
 
-                if (d < frame_depth && d > 5) {
+                if (d < frame_depth && d > 1) {
                     frame.at<cv::Vec3b>(i, j) = cv::Vec3b(pix.r, pix.g, pix.b);
                 } else {
                     frame.at<cv::Vec3b>(i, j) = cv::Vec3b(0, 0, 0);
@@ -94,14 +94,14 @@ int main() {
 
         /*blur depth data*/
         cv::Mat temp = cv::Mat::zeros(frame.size(), CV_8UC3);
-        cv::Mat weightedFrame = cv::Mat(frame.size(), CV_32FC3);
-        cv::Mat run_ave = cv::Mat::zeros(frame.size(), CV_8UC3);
+//        cv::Mat weightedFrame = cv::Mat(frame.size(), CV_32FC3);
+//        cv::Mat run_ave = cv::Mat::zeros(frame.size(), CV_8UC3);
         
         cv::GaussianBlur(frame, temp, Size(13, 13), 0, 0);
         
         
-        cv::accumulateWeighted(temp, weightedFrame, 0.01);
-        cv::convertScaleAbs(weightedFrame, run_ave, 1.0, 0.0);
+//        cv::accumulateWeighted(temp, weightedFrame, 0.01);
+//        cv::convertScaleAbs(weightedFrame, run_ave, 1.0, 0.0);
         
         /*allocate memory for canny*/
         Mat canny_output = cv::Mat::zeros(frame.size(), CV_8UC1);
@@ -110,11 +110,11 @@ int main() {
 
         /// Detect edges using canny
         unsigned int thresh = 20;
-        Canny(run_ave, canny_output, thresh, thresh * 2, 3);
+        Canny(temp, canny_output, thresh, thresh * 2, 3);
         /// Find contours
         findContours(canny_output, contours, CV_RETR_TREE, CV_CHAIN_APPROX_NONE);
 
-        cv::Mat birds_eye = cv::Mat::zeros(cv::Size(frame_depth, 320), CV_8UC3);
+        cv::Mat birds_eye = cv::Mat::zeros(cv::Size(MAP_WIDTH, MAP_HEIGHT), CV_8UC3);
 
         /*draw borders / contours*/
         //        Scalar color(255, 255, 255);
@@ -122,7 +122,7 @@ int main() {
             vector<Point> next_contour = contours.at(i);
             if (next_contour.size() > 200) {
                 Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-                drawContours(contour, contours, i, color, 1, 8);
+//                drawContours(contour, contours, i, color, 1, 8);
 
                 /*draw onto birds-eye view*/
                 for (unsigned int j = 0; j < next_contour.size(); j++) {
@@ -130,14 +130,27 @@ int main() {
                     int x = next_point.x;
                     int y = next_point.y;
                     int z = pDepth[frame.cols * y + x];
-                    birds_eye.at<cv::Vec3b>(x, z) = cv::Vec3b(255, 0, 0);
+                    birds_eye.at<cv::Vec3b>(x, z) = cv::Vec3b(0, 255, 0);
                 }
             }
-
         }
         
+        /*blur birds eye view to make objects solid*/
+       cv::GaussianBlur(birds_eye, birds_eye, Size(13, 13), 0, 0);
+
+        
         /*compute shortest path through obstacles*/
-        Point * traject = search(birds_eye);
+        int start_x = 250;
+        int start_y = MAP_HEIGHT / 2;
+        Point start = cv::Point(start_x, start_y);
+        int end_x = 800;
+        int end_y = MAP_HEIGHT / 2;
+        Point end = cv::Point(end_x, end_y);
+        Point * traject = search(birds_eye, start, end);
+        
+        /*print start and end locations*/
+        circle(birds_eye, start, 2, Scalar(0,255,0));
+        circle(birds_eye, end, 2, Scalar(0,255,0));
         
         /*draw the trajectory*/
 //        Mat imgLines = Mat::zeros(img.size(), CV_8UC3); // allocate new memory
@@ -154,10 +167,12 @@ int main() {
             last_point = this_point;
             index++;
         }
+        
+        free(traject);
 
-        cv::imshow("depth", run_ave);
-        cv::imshow("OpenCV", frame);
-        cv::imshow("contour", contour);
+//        cv::imshow("depth", run_ave);
+//        cv::imshow("OpenCV", frame);
+//        cv::imshow("contour", contour);
         cv::imshow("birds-eye", birds_eye);
 
 //                sleep(4);

@@ -18,6 +18,8 @@
 #define DEBUG_LISTS 0
 #define DEBUG_LIST_LENGTHS_ONLY 0
 
+#define MAP_WIDTH 1000
+#define MAP_HEIGHT 320
 using namespace std;
 
 // Global data
@@ -29,7 +31,7 @@ using namespace std;
 // map helper functions
 
 int GetMap(int x, int y);
-cv::Point * search(cv::Mat birds_eye);
+cv::Point * search(cv::Mat birds_eye, cv::Point, cv::Point);
 
 
 // Definitions

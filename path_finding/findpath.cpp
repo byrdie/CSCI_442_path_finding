@@ -10,21 +10,18 @@
 
 #include "findpath.h"
 
-const int MAP_WIDTH = 1750;
-const int MAP_HEIGHT = 320;
 
-int world_map[1750][320];
+
+int world_map[MAP_WIDTH][MAP_HEIGHT];
 
 int GetMap(int x, int y) {
-    if (x < 0 ||
-            x >= MAP_WIDTH ||
-            y < 0 ||
-            y >= MAP_HEIGHT
-            ) {
-        return 9;
+    if (x <= 0 || x >= MAP_WIDTH || y <= 0 || y >= MAP_HEIGHT) {
+        return 255;
+    } else {
+        return world_map[x][y];
     }
 
-    return world_map[x][y];
+    
 }
 
 bool MapSearchNode::IsSameState(MapSearchNode &rhs) {
@@ -83,8 +80,8 @@ bool MapSearchNode::GetSuccessors(AStarSearch<MapSearchNode> *astarsearch, MapSe
 
     // push each possible move except allowing the search to go backwards
 
-        if ((GetMap(x - 1, y) < 1)
-//    if ((GetMap(x - 1, y) > 0)
+    if ((GetMap(x - 1, y) == 0)
+            //    if ((GetMap(x - 1, y) > 0)
 
             && !((parent_x == x - 1) && (parent_y == y))
             ) {
@@ -92,8 +89,8 @@ bool MapSearchNode::GetSuccessors(AStarSearch<MapSearchNode> *astarsearch, MapSe
         astarsearch->AddSuccessor(NewNode);
     }
 
-        if ((GetMap(x, y - 1) < 1)
-//    if ((GetMap(x, y - 1) > 0)
+    if ((GetMap(x, y - 1) == 0)
+            //    if ((GetMap(x, y - 1) > 0)
 
             && !((parent_x == x) && (parent_y == y - 1))
             ) {
@@ -101,8 +98,8 @@ bool MapSearchNode::GetSuccessors(AStarSearch<MapSearchNode> *astarsearch, MapSe
         astarsearch->AddSuccessor(NewNode);
     }
 
-        if ((GetMap(x + 1, y) < 1)
-//    if ((GetMap(x + 1, y) > 0)
+    if ((GetMap(x + 1, y) == 0)
+            //    if ((GetMap(x + 1, y) > 0)
 
             && !((parent_x == x + 1) && (parent_y == y))
             ) {
@@ -111,8 +108,8 @@ bool MapSearchNode::GetSuccessors(AStarSearch<MapSearchNode> *astarsearch, MapSe
     }
 
 
-        if ((GetMap(x, y + 1) < 1)
-//    if ((GetMap(x, y + 1) > 0)
+    if ((GetMap(x, y + 1) == 0)
+            //    if ((GetMap(x, y + 1) > 0)
 
             && !((parent_x == x) && (parent_y == y + 1))
             ) {
@@ -135,9 +132,9 @@ float MapSearchNode::GetCost(MapSearchNode &successor) {
 
 // Main
 
-Point * search(cv::Mat birds_eye) {
+Point * search(cv::Mat birds_eye, Point start, Point end) {
 
-    Point * trajectory = (Point *) malloc(sizeof (Point) * 3000);
+    Point * trajectory = (Point *) calloc(1001, sizeof (Point));
 
     //    cout << "STL A* Search implementation\n(C)2001 Justin Heyes-Jones\n";
 
@@ -149,9 +146,13 @@ Point * search(cv::Mat birds_eye) {
 
     // Create an instance of the search class...
 
+    int cn = birds_eye.channels();
+    uint8_t * pix_ptr = (uint8_t*) birds_eye.data;
     for (int i = 0; i < MAP_WIDTH; i++) {
         for (int j = 0; j < MAP_HEIGHT; j++) {
-            world_map[i][j] = birds_eye.at<Vec3b>(j, i)[0];
+//            world_map[i][j] = (int) birds_eye.at<Vec3b>(j, i)[1];
+            world_map[i][j] = pix_ptr[j * birds_eye.cols*cn + i*cn + 1];
+            
         }
     }
 
@@ -167,15 +168,16 @@ Point * search(cv::Mat birds_eye) {
         MapSearchNode nodeStart;
         //        nodeStart.x = rand() % MAP_WIDTH;
         //        nodeStart.y = rand() % MAP_HEIGHT;
-        nodeStart.x = 6;
-        nodeStart.y = MAP_HEIGHT / 2;
+        nodeStart.x = start.x;
+        nodeStart.y = start.y;
+        
 
         // Define the goal state
         MapSearchNode nodeEnd;
         //        nodeEnd.x = rand() % MAP_WIDTH;
         //        nodeEnd.y = rand() % MAP_HEIGHT;
-        nodeEnd.x = MAP_WIDTH - 5;
-        nodeEnd.y = MAP_HEIGHT / 2;
+        nodeEnd.x = end.x;
+        nodeEnd.y = end.y;
 
         // Set Start and goal states
 
@@ -226,12 +228,12 @@ Point * search(cv::Mat birds_eye) {
 
 
         } else if (SearchState == AStarSearch<MapSearchNode>::SEARCH_STATE_FAILED) {
-            cout << "Search terminated. Did not find goal state\n";
+//            cout << "Search terminated. Did not find goal state\n";
 
         }
 
         // Display the number of loops the search went through
-        cout << "SearchSteps : " << SearchSteps << "\n";
+//        cout << "SearchSteps : " << SearchSteps << "\n";
 
         SearchCount++;
 
