@@ -8,7 +8,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "stlastar.h" // See header for copyright and usage information
+//#include "stlastar.h" // See header for copyright and usage information
 
 #include <iostream>
 #include <stdio.h>
