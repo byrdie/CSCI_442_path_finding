@@ -70,8 +70,12 @@ int main() {
     cv::namedWindow("depth", CV_WINDOW_KEEPRATIO);
     cv::namedWindow("OpenCV", CV_WINDOW_KEEPRATIO);
     cv::namedWindow("contour", CV_WINDOW_KEEPRATIO);
+    cv::namedWindow("birds-eye", CV_WINDOW_KEEPRATIO);
+    
 
     cv::Mat frame = cv::Mat(cv::Size(320, 240), CV_8UC3);
+    int frame_depth = 1750;
+    
 
 
     cv::Mat bw;
@@ -88,7 +92,7 @@ int main() {
                 openni::RGB888Pixel pix = pColor[frame.cols * i + j];
                 int d = pDepth[frame.cols * i + j];
 
-                if (d < 1750 && d > 20) {
+                if (d < frame_depth && d > 20) {
                     frame.at<cv::Vec3b>(i, j) = cv::Vec3b(pix.r, pix.g, pix.b);
                 } else {
                     frame.at<cv::Vec3b>(i, j) = cv::Vec3b(0, 0, 0);
@@ -117,13 +121,24 @@ int main() {
         /// Find contours
         findContours(canny_output, contours, CV_RETR_TREE, CV_CHAIN_APPROX_NONE);
 
+        cv::Mat birds_eye = cv::Mat::zeros(cv::Size(320, frame_depth), CV_8UC3);
 
         /*draw borders / contours*/
 //        Scalar color(255, 255, 255);
         for (unsigned int i = 0; i < contours.size(); i++) {
-            if (contours.at(i).size() > 100) {
+            vector<Point> next_contour = contours.at(i);
+            if (next_contour.size() > 100) {
                 Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
                 drawContours(contour, contours, i, color, 1, 8);
+                
+                /*draw onto birds-eye view*/
+                for(unsigned int j = 0; j < next_contour.size(); j++){
+                    Point next_point = next_contour.at(j);
+                    int x = next_point.x;
+                    int y = next_point.y;
+                    int z = pDepth[frame.cols * y + x];
+                    birds_eye.at<cv::Vec3b>(x, z) = cv::Vec3b(255, 0, 0);
+                }
             }
 
         }
@@ -131,6 +146,7 @@ int main() {
         cv::imshow("depth", bw);
         cv::imshow("OpenCV", frame);
         cv::imshow("contour", contour);
+        cv::imshow("birds-eye", birds_eye);
         
 //        sleep(1);
 
