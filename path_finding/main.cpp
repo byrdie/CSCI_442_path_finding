@@ -122,7 +122,7 @@ int main() {
             vector<Point> next_contour = contours.at(i);
             if (next_contour.size() > 200) {
                 Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-//                drawContours(contour, contours, i, color, 1, 8);
+                drawContours(contour, contours, i, color, 1, 8);
 
                 /*draw onto birds-eye view*/
                 for (unsigned int j = 0; j < next_contour.size(); j++) {
@@ -171,8 +171,8 @@ int main() {
         free(traject);
 
 //        cv::imshow("depth", run_ave);
-//        cv::imshow("OpenCV", frame);
-//        cv::imshow("contour", contour);
+        cv::imshow("OpenCV", frame);
+        cv::imshow("contour", contour);
         cv::imshow("birds-eye", birds_eye);
 
 //                sleep(4);
